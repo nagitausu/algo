@@ -1,8 +1,8 @@
 MOD = 10**9 + 7
-n = 10**5 
+MAX_N = 10**5 
 
-fac = [1] + [0] * n
-fac_inv = [1] + [0] * n
+fac = [1] + [0] * MAX_N
+fac_inv = [1] + [0] * MAX_N
 for i in range(1, n+1):
     fac[i] = fac[i-1] * (i) % MOD
     # Fermat's little theorem says
