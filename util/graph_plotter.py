@@ -38,33 +38,7 @@ def plot(edge):
     plt.show()
 
 if __name__ == "__main__":
+    import graph_generator
     n = 30
-    nodes = [i for i in range(n)]
-    random.shuffle(nodes)
-
-    # Prepare tree edge
-    tree = []
-    tree_edge_list = [[] for _ in range(n)]
-    tree_edge = []
-    for i in range(n):
-        if i == 0:
-            tree.append(nodes[i])
-            continue
-        u = random.sample(tree, 1)[0]
-        v = nodes[i]
-        if u > v:
-            u, v = v, u
-        tree_edge_list[u].append(v)
-        tree_edge_list[v].append(u)
-        tree_edge.append((v, u))
-        tree.append(nodes[i])
-
-    # Prepare simple connected graph edge
-    edge_set = set(tree_edge)
-    all_edge = [(i, j) for i in range(n) for j in range(i,n)]
-    edge_set = edge_set.union(random.sample(all_edge, n//3))
-    simple_connected_edge = list(edge_set)
-
-    # Plot graph
-    # graph_plotter(simple_connected_edge)
-    plot(tree_edge)
+    edge = graph_generator.generate_simple_connected_graph(n, raw=True)
+    plot(edge)
