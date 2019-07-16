@@ -5,7 +5,6 @@ def generate_tree(n, raw=False):
     nodes = [i for i in range(n)]
     random.shuffle(nodes)
 
-    # Prepare tree edge
     group = []
     tree_edge = []
     for i in range(n):
@@ -16,7 +15,7 @@ def generate_tree(n, raw=False):
         v = nodes[i]
         if u > v:
             u, v = v, u
-        tree_edge.append((v, u))
+        tree_edge.append((u, v))
         group.append(nodes[i])
 
     if raw:
@@ -28,12 +27,21 @@ def generate_tree(n, raw=False):
             tree_edge_list[v].append(u)
         return tree_edge_list
 
-def generate_simple_connected_graph(n, raw=False):
-    # Prepare simple connected graph edge
+def generate_simple_connected_graph(n, density=1, raw=False):
+    # Keep connectivity
     tree_edge = generate_tree(n, raw=True)
     edge_set = set(tree_edge)
-    all_edge = [(i, j) for i in range(n) for j in range(i, n)]
-    edge_set = edge_set.union(random.sample(all_edge, n//3))
+
+    # Add edge node num * density times
+    # If duplicated, edge disappears
+    for i in range(int(n*density)):
+        u = 0; v = 0
+        while u == v:
+            u = random.randint(0, n-1)
+            v = random.randint(0, n-1)
+        if u > v:
+            u, v = v, u
+        edge_set.add((u,v))
     simple_connected_edge = list(edge_set)
 
     if raw:
