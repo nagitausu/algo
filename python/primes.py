@@ -9,5 +9,20 @@ def primes(n):
             is_prime[j] = False
     return [i for i in range(n + 1) if is_prime[i]]
 
+def prime_factorize(n):
+    b = 2
+    fct = []
+    while b * b <= n:
+        while n % b == 0:
+            n //= b
+            fct.append(b)
+        b = b + 1
+    if n > 1:
+        fct.append(n)
+    return fct
+
 if __name__ == "__main__":
-    print(primes(123))
+    print("Prime factorize")
+    print(prime_factorize(354))
+    print("All primes under N")
+    print(primes(354))
