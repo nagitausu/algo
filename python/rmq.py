@@ -5,10 +5,10 @@ class RMQ:
         self.n = len(a)
         self.size = 2**(self.n - 1).bit_length()
         self.data = [INF] * (2*self.size-1)
-        self.initialize()
+        self.initialize(a)
 
     # Initialize data
-    def initialize(self):
+    def initialize(self, a):
         for i in range(self.n):
             self.data[self.size + i - 1] = a[i]
         for i in range(self.size-2, -1, -1):
@@ -37,9 +37,9 @@ class RMQ:
         return s
 
 if __name__ == "__main__":
-    a = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    n = len(a)
-    rmq = RMQ(a)
+    b = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    n = len(b)
+    rmq = RMQ(b)
     for i in range(n):
         print(rmq.query(i, n), end=" ")
     print("")
