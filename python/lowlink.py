@@ -1,32 +1,57 @@
-n, m = [int(item) for item in input().split()]
-edge = [[0]*n for _ in range(n)]
+class LowLink:
+    def __init__(self, adj):
+        self.n = len(adj)
+        self.adj = adj
+        self.used = [0] * n
+        self.ord = [0] * n
+        self.low = [0] * n
+        self.bridge = []
+        self.articulation = []
 
-for i in range(m):
-    a, b = [int(item) for item in input().split()]
-    edge[a-1][b-1] = 1
-    edge[b-1][a-1] = 1
+    def dfs(self, v, order, prev):
+        order += 1
+        self.used[v] = 1
+        self.ord[v] = order
+        self.low[v] = self.ord[v]
 
-ans = 0
-order = 0
-pre = [-1]*n
-low = [-1]*n
+        is_articulation = False
+        cnt = 0
+        for to in self.adj[v]:
+            if not self.used[to]:
+                cnt += 1
+                order = self.dfs(to, order, v)
+                self.low[v] = min(self.low[v], self.low[to])
+                if prev != -1:
+                    is_articulation |= self.low[to] >= self.ord[v]
+                if(self.ord[v] < self.low[to]):
+                    if v < to:
+                        self.bridge.append((v, to))
+                    else:
+                        self.bridge.append((to, v))
+            elif to != prev:
+                self.low[v] = min(self.low[v], self.low[to])
+        if prev == -1:
+            is_articulation |= cnt > 1
+        if is_articulation:
+            self.articulation.append(v)
+        return order
 
-def dfs(node, prev):
-    global order, ans
-    pre[node] = order
-    low[node] = order
-    order += 1
-    for to in range(n):
-        if to == prev or edge[node][to] == 0:
-            continue
-        if pre[to] == -1:
-            ret = dfs(to, node)
-            low[node] = min(low[node], ret)
-        else:
-            low[node] = min(low[node], pre[to])
-        if pre[node] < low[to]:
-            ans += 1
-    return low[node]
+    def build(self):
+        order = 0
+        for i in range(self.n):
+            if not self.used[i]:
+                order = self.dfs(i, order, -1)
 
-dfs(0, -1)
-print(ans)
+if __name__ == "__main__":
+    n, m = [int(item) for item in input().split()]
+    edge = [[] for _ in range(n)]
+
+    for i in range(m):
+        a, b = [int(item) for item in input().split()]
+        edge[a].append(b)
+        edge[b].append(a)
+
+    LL = LowLink(edge)
+    LL.build()
+    print(LL.bridge)
+    print(LL.articulation)
