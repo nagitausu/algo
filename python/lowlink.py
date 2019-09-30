@@ -8,7 +8,7 @@ class LowLink:
         self.bridge = []
         self.articulation = []
 
-    def dfs(self, v, order, prev):
+    def dfs_lowlink(self, v, order, prev):
         order += 1
         self.used[v] = 1
         self.ord[v] = order
@@ -19,7 +19,7 @@ class LowLink:
         for to in self.adj[v]:
             if not self.used[to]:
                 cnt += 1
-                order = self.dfs(to, order, v)
+                order = self.dfs_lowlink(to, order, v)
                 self.low[v] = min(self.low[v], self.low[to])
                 if prev != -1:
                     is_articulation |= self.low[to] >= self.ord[v]
@@ -36,11 +36,37 @@ class LowLink:
             self.articulation.append(v)
         return order
 
-    def build(self):
+    def calc_lowlink(self):
         order = 0
         for i in range(self.n):
             if not self.used[i]:
-                order = self.dfs(i, order, -1)
+                order = self.dfs_lowlink(i, order, -1)
+
+    def dfs_decompose(self, v, label, prev):
+        if prev != -1 and self.ord[prev] >= self.low[v]:
+            self.comp[v] = self.comp[prev]
+        else:
+            label += 1
+            self.comp[v] = label
+        for to in self.adj[v]:
+            if self.comp[to] == -1:
+                label = self.dfs_decompose(to, label, v)
+        return label
+
+    def decompose(self):
+        self.calc_lowlink()
+        self.comp = [-1] * self.n
+
+        label = -1
+        for i in range(self.n):
+            if self.comp[i] == -1:
+                label = self.dfs_decompose(i, label, -1)
+        edge = [[] for _ in range(label + 1)]
+        for u, v in self.bridge:
+            x = self.comp[u]; y = self.comp[v]
+            edge[x].append(y)
+            edge[y].append(x)
+        return edge
 
 if __name__ == "__main__":
     n, m = [int(item) for item in input().split()]
@@ -52,6 +78,9 @@ if __name__ == "__main__":
         edge[b].append(a)
 
     LL = LowLink(edge)
-    LL.build()
+    # LL.calc_lowlink()
+    new_edge = LL.decompose()
     print(LL.bridge)
     print(LL.articulation)
+    print(LL.comp)
+    print(new_edge)
