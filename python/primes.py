@@ -9,7 +9,7 @@ def primes(n):
             is_prime[j] = False
     return [i for i in range(n + 1) if is_prime[i]]
 
-def prime_factorize(n):
+def prime_factorize(n, unique=False):
     b = 2
     fct = []
     while b * b <= n:
@@ -19,10 +19,15 @@ def prime_factorize(n):
         b = b + 1
     if n > 1:
         fct.append(n)
-    return fct
+    if unique:
+        return set(fct)
+    else:
+        return fct
 
 if __name__ == "__main__":
     print("Prime factorize")
-    print(prime_factorize(354))
+    print(prime_factorize(3540))
+    print("Prime factorize unique")
+    print(prime_factorize(3540, unique=True))
     print("All primes under N")
     print(primes(354))

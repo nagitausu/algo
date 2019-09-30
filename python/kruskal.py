@@ -6,7 +6,6 @@ ysort = sorted(xy, key=lambda x : x[1])
 class UnionFind:
     def __init__(self, n):
         self.par = [i for i in range(n)]
-        self.size = [1] * (n)
         self.rank = [0] * (n)
 
     def find(self, x):
@@ -18,9 +17,6 @@ class UnionFind:
 
     def same_check(self, x, y):
         return self.find(x) == self.find(y)
-
-    def get_size(self, x):
-        return self.size[self.find(x)]
 
     def union(self, x, y):
         x = self.find(x)
