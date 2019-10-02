@@ -9,6 +9,12 @@ class DirectedGraph:
         self.is_asyclic = False
         self.max_path_len = None
 
+    def reverse_adj(self):
+        self.reverse_adj = [[] for _ in range(self.n)]
+        for u, vs in enumerate(self.adj):
+            for v in vs:
+                self.reverse_adj[v].append(u)
+
     def topological_sort(self):
         indegree = [0] * self.n
         for i, vs in enumerate(self.adj):
@@ -44,42 +50,85 @@ class DirectedGraph:
             return None
 
     def extract_cycle(self):
-        self.seen = [0] * self.n
-        self.checked = [0] * self.n
-        self.hist = deque()
+        seen = [0] * self.n
+        checked = [0] * self.n
+        hist = deque()
         self.node_in_cycle = -1
 
+        self.reverse_adj()
+
         def dfs(v):
-            self.seen[v] = 1
-            self.hist.append(v)
+            seen[v] = 1
+            hist.append(v)
             for nv in self.adj[v]:
-                if self.checked[nv]:
+                if checked[nv]:
                     continue
-                if self.seen[nv] and not self.checked[nv]:
+                if seen[nv] and not checked[nv]:
                     self.node_in_cycle = nv
                     return
                 dfs(nv)
                 if self.node_in_cycle != -1:
                     return
-            self.hist.pop()
-            self.checked[v] = 1
+            hist.pop()
+            checked[v] = 1
 
         for i in range(self.n):
-            if not self.checked[i]:
+            if not checked[i]:
                 dfs(i)
             if self.node_in_cycle != -1:
                 break
         if self.node_in_cycle == -1:
+            self.is_asyclic = True
             return []
         else:
+            self.is_asyclic = False
             cycle = []
-            while self.hist:
-                t = self.hist.pop()
+            while hist:
+                t = hist.pop()
                 cycle.append(t)
                 if t == self.node_in_cycle:
                     break
             cycle.reverse()
             return cycle
+
+    def strongly_connected_components_decomp(self):
+        visited = [0] * self.n
+        order = []
+        self.comp = [-1] * self.n
+
+        def dfs(v):
+            if visited[v]:
+                return
+            visited[v] = 1
+            for nv in self.adj[v]:
+                dfs(nv)
+            order.append(v)
+
+        def rdfs(v, cnt):
+            if self.comp[v] != -1:
+                return
+            self.comp[v] = cnt
+            for nv in self.reverse_adj[v]:
+                rdfs(nv, cnt)
+
+        for i in range(self.n):
+            dfs(i)
+        order.reverse()
+
+        components_num = 0
+        for v in order:
+            if self.comp[v] == -1:
+                rdfs(v, components_num)
+                components_num += 1
+
+        scc = [[] for _ in range(components_num)]
+        for u in range(self.n):
+            for v in self.adj[u]:
+                if self.comp[u] == self.comp[v]:
+                    continue
+                scc[self.comp[u]].append(self.comp[v])
+        return scc
+
 
 
 if __name__ == "__main__":
@@ -88,7 +137,7 @@ if __name__ == "__main__":
     edge[0].append(1)
     edge[1].append(2)
     edge[2].append(3)
-    edge[3].append(5)
+    edge[3].append(0)
     edge[5].append(6)
     edge[5].append(1)
     edge[6].append(2)
@@ -98,8 +147,14 @@ if __name__ == "__main__":
 
     DG = DirectedGraph(edge)
     tp_sorted = DG.topological_sort()
+    print("topological sort")
     print(tp_sorted)
     print(DG.max_path_len)
 
     cycle = DG.extract_cycle()
+    print("extrace cycle")
     print(cycle)
+    scc = DG.strongly_connected_components_decomp()
+    print("strongly connected components")
+    print(scc)
+    print(DG.comp)
