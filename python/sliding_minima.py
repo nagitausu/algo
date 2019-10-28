@@ -2,10 +2,9 @@ from collections import deque
 
 def sliding_minima(a, k):
     dq = deque()
-    l = r = 0
     ret = []
     for i, item in enumerate(a):
-        while(dq and a[dq[-1]] >= a[i]):
+        while(dq and a[dq[-1]] >= item):
             dq.pop()
         dq.append(i)
         if i < k - 1:
@@ -17,10 +16,9 @@ def sliding_minima(a, k):
 
 def sliding_maxima(a, k):
     dq = deque()
-    l = r = 0
     ret = []
     for i, item in enumerate(a):
-        while(dq and a[dq[-1]] <= a[i]):
+        while(dq and a[dq[-1]] <= item):
             dq.pop()
         dq.append(i)
         if i < k - 1:

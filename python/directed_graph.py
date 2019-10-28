@@ -10,14 +10,14 @@ class DirectedGraph:
         self.max_path_len = None
 
     def reverse_adj(self):
-        self.reverse_adj = [[] for _ in range(self.n)]
+        self.rev_adj = [[] for _ in range(self.n)]
         for u, vs in enumerate(self.adj):
             for v in vs:
-                self.reverse_adj[v].append(u)
+                self.rev_adj[v].append(u)
 
     def topological_sort(self):
         indegree = [0] * self.n
-        for i, vs in enumerate(self.adj):
+        for vs in self.adj:
             for dest in vs:
                 indegree[dest] += 1
         zero_v = []
@@ -108,7 +108,7 @@ class DirectedGraph:
             if self.comp[v] != -1:
                 return
             self.comp[v] = cnt
-            for nv in self.reverse_adj[v]:
+            for nv in self.rev_adj[v]:
                 rdfs(nv, cnt)
 
         for i in range(self.n):
@@ -137,7 +137,7 @@ if __name__ == "__main__":
     edge[0].append(1)
     edge[1].append(2)
     edge[2].append(3)
-    edge[3].append(0)
+    # edge[3].append(0)
     edge[5].append(6)
     edge[5].append(1)
     edge[6].append(2)
