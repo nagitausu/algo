@@ -1,5 +1,5 @@
 MOD = 10**9 + 7
-MAX_N = 10**5 
+MAX_N = 10**5
 
 fac = [1] + [0] * MAX_N
 for i in range(1, MAX_N+1):
@@ -18,8 +18,8 @@ def mod_nCr(n, r):
     if n < r or n < 0 or r < 0:
         return 0
     tmp = fac_inv[n-r] * fac_inv[r] % MOD
-    return tmp * fac[n] % MOD 
-    
+    return tmp * fac[n] % MOD
+
 def single_mod_nCr(n, r):
     if n < r or n < 0 or r < 0:
         return 0

@@ -1,4 +1,5 @@
 from heapq import heappush, heappop
+
 class MinCostFlow:
     INF = 10**18
     def __init__(self, N):
