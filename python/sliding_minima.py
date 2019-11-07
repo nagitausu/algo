@@ -32,7 +32,7 @@ if __name__ == "__main__":
     import random
     random.seed(0)
     n = 20; k = 5
-    a = [random.randrange(0,100) for _ in range(n)] 
+    a = [random.randrange(0,100) for _ in range(n)]
     print("raw", a)
     print("min", sliding_minima(a, k))
     print("max", sliding_maxima(a, k))

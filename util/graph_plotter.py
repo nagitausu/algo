@@ -43,5 +43,7 @@ def plot(edge):
 if __name__ == "__main__":
     import graph_generator
     n = 30
-    edge = graph_generator.generate_simple_connected_graph(n, raw=True)
+    # edge = graph_generator.generate_simple_connected_graph(n, raw=True)
+    edge = graph_generator.generate_tree(n, raw=True)
+
     plot(edge)
