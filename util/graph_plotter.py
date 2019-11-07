@@ -2,8 +2,11 @@
 import random
 random.seed(0)
 
+import matplotlib
+matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 import networkx as nx
+
 
 # Num of nodes should be <100 since it's too heavy
 # <30 is better cause you cannot understand the graph more than that...
