@@ -14,7 +14,7 @@ class CumulativeSum2D:
             self.cumsum.append([0] * self.w_offset + line + [0] * self.w_offset)
         for i in range(self.h_offset):
             self.cumsum.append([0] * (self.w + self.w_offset * 2))
-    
+
     def calc_horizontal_cumsum(self):
         # Calc horizontal cumlative sum
         for i in range(self.h_offset, self.h_offset + self.h):
@@ -48,7 +48,7 @@ class CumulativeSum2D:
             while w - delta >= 0 and delta < self.h_offset * 2 + self.h:
                 self.cumsum[delta][w - delta] += self.cumsum[delta - 1][w - delta + 1]
                 delta += 1
-    
+
     # Get horizontal sum in l <= x < r, u <= y < d
     # x: right, y: down
     def get_horizontal_sum(self, x1, y1, x2, y2):
@@ -57,12 +57,12 @@ class CumulativeSum2D:
         ret -= self.cumsum[y1-1 + self.h_offset][x2-1 + self.w_offset]
         ret += self.cumsum[y1-1 + self.h_offset][x1-1 + self.w_offset]
         return ret
-    
-    # Get horizontal sum in x1 <= x <= x2, y1 <= y <= y2 
+
+    # Get horizontal sum in x1 <= x <= x2, y1 <= y <= y2
     def get_diagonal_sum(self, x1, y1, x2, y2):
         if ((x1 + y1) - (x2 + y2)) % 2 == 1:
             return None
-        u2 = x2 + y2 
+        u2 = x2 + y2
         v2 = x2 - y2
         u1 = x1 + (y1 - 2)
         v1 = x1 - (y1 - 2)
@@ -75,12 +75,34 @@ class CumulativeSum2D:
         ret -= self.cumsum[y4 + self.h_offset][x4 + self.w_offset]
         ret += self.cumsum[y1-2 + self.h_offset][x1 + self.w_offset]
         return ret
-        
+
 
     def print(self):
         print("h:", self.h, "w:", self.w)
         for i in range(self.h_offset, self.h_offset + self.h):
             print(self.cumsum[i][self.w_offset:self.w_offset + self.w])
+
+
+def rotate_right(field):
+    h = len(field)
+    w = len(field[0])
+    h, w = w, h
+    new_field = []
+    for col in zip(*field):
+        new_field.append(list(reversed(col)))
+    return new_field
+
+
+def rotate_left(field):
+    h = len(field)
+    w = len(field[0])
+    h, w = w, h
+    new_field = []
+    for col in zip(*field):
+        new_field.append(list(col))
+    new_field.reverse()
+    return new_field
+
 
 if __name__ == "__main__":
     field = [[1, 1, 1],
