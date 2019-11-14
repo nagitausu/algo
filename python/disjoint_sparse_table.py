@@ -11,7 +11,7 @@ class DisjointSparseTable:
         self.build()
 
     def build(self):
-        for i in range(self.level):
+        for i in range(1, self.level):
             step = 2**i
             lv = self.level - 1 - i
             for mid in range(step, self.size, step*2):
