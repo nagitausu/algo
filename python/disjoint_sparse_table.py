@@ -1,37 +1,39 @@
 class DisjointSparseTable:
     def __init__(self, a):
+        # Identity element
+        self.e = 0
         self.level = (len(a) - 1).bit_length()
         self.size = 2**self.level
-        self.table = [[0] * self.size for _ in range(self.level)]
+        self.table = [[self.e] * self.size for _ in range(self.level)]
         # Set bottom first
         for i, item in enumerate(a):
             self.table[-1][i] = item
         self.build()
 
     def build(self):
-        for lv in range(1, self.level):
-            step = 2**lv
-            level = self.level - 1 - lv
+        for i in range(self.level):
+            step = 2**i
+            lv = self.level - 1 - i
             for mid in range(step, self.size, step*2):
-                # Calc forward
-                val = 0
-                for i in range(step):
-                    val = max(self.table[-1][mid + i], val)
-                    self.table[level][mid + i] = val
-                # Calc backward
-                val = 0
-                for i in range(step):
-                    val = max(self.table[-1][mid - 1 - i], val)
-                    self.table[level][mid - 1 - i] = val
+                # Forward
+                val = self.e 
+                for j in range(step):
+                    val = max(self.table[-1][mid + j], val)
+                    self.table[lv][mid + j] = val
+                # Backward
+                val = self.e 
+                for j in range(step):
+                    val = max(self.table[-1][mid - 1 - j], val)
+                    self.table[lv][mid - 1 - j] = val
 
     # Returns f[l:r)
     def query(self, l, r):
         if l == r:
-            return 0
-        if l == r - 1:
+            return self.e
+        elif l == r - 1:
             return self.table[-1][l]
-        level = self.level - (l ^ r-1).bit_length()
-        return max(self.table[level][l], self.table[level][r-1])
+        lv = self.level - (l ^ r-1).bit_length()
+        return max(self.table[lv][l], self.table[lv][r-1])
 
 if __name__ == "__main__":
     a = [1, 4, 3, 8, 5, 0, 7, 2, 9, 11, 2]
