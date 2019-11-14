@@ -4,7 +4,7 @@ class DisjointSparseTable:
         self.size = 2**self.level
         self.table = [[0] * self.size for _ in range(self.level)]
         # Set bottom first
-        for i, item in enumerate(a): 
+        for i, item in enumerate(a):
             self.table[-1][i] = item
         self.build()
 
@@ -23,9 +23,11 @@ class DisjointSparseTable:
                 for i in range(step):
                     val = max(self.table[-1][mid - 1 - i], val)
                     self.table[level][mid - 1 - i] = val
-    
+
     # Returns f[l:r)
     def query(self, l, r):
+        if l == r:
+            return 0
         if l == r - 1:
             return self.table[-1][l]
         level = self.level - (l ^ r-1).bit_length()
