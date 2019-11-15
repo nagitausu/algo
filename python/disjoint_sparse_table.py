@@ -2,7 +2,8 @@ class DisjointSparseTable:
     def __init__(self, a):
         # Identity element
         self.e = 0
-        self.level = (len(a) - 1).bit_length()
+        self.n = len(a)
+        self.level = (self.n - 1).bit_length()
         self.size = 2**self.level
         self.table = [[self.e] * self.size for _ in range(self.level)]
         # Set bottom first
@@ -14,7 +15,7 @@ class DisjointSparseTable:
         for i in range(1, self.level):
             step = 2**i
             lv = self.level - 1 - i
-            for mid in range(step, self.size, step*2):
+            for mid in range(step, self.n + step, step*2):
                 # Forward
                 val = self.e 
                 for j in range(step):
@@ -36,7 +37,7 @@ class DisjointSparseTable:
         return max(self.table[lv][l], self.table[lv][r-1])
 
 if __name__ == "__main__":
-    a = [1, 4, 3, 8, 5, 0, 7, 2, 9, 11, 2]
+    a = [1, 4, 3, 8, 5, 0, 7, 2, 9, 11, 2, 4, 5, 10, 11, 12, 11]
     DST = DisjointSparseTable(a)
     for line in DST.table:
         print(line)
