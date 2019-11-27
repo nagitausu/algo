@@ -1,5 +1,7 @@
 class DisjointSparseTable:
     def __init__(self, a):
+        # Operator
+        self.op = lambda a, b : max(a, b)
         # Identity element
         self.e = 0
         self.n = len(a)
@@ -19,22 +21,22 @@ class DisjointSparseTable:
                 # Forward
                 val = self.e 
                 for j in range(step):
-                    val = max(self.table[-1][mid + j], val)
+                    val = self.op(self.table[-1][mid + j], val)
                     self.table[lv][mid + j] = val
                 # Backward
                 val = self.e 
                 for j in range(step):
-                    val = max(self.table[-1][mid - 1 - j], val)
+                    val = self.op(self.table[-1][mid - 1 - j], val)
                     self.table[lv][mid - 1 - j] = val
 
     # Returns f[l:r)
-    def query(self, l, r):
+    def fold(self, l, r):
         if l == r:
             return self.e
         elif l == r - 1:
             return self.table[-1][l]
         lv = self.level - (l ^ r-1).bit_length()
-        return max(self.table[lv][l], self.table[lv][r-1])
+        return self.op(self.table[lv][l], self.table[lv][r-1])
 
 if __name__ == "__main__":
     a = [1, 4, 3, 8, 5, 0, 7, 2, 9, 11, 2, 4, 5, 10, 11, 12, 11]
@@ -42,4 +44,4 @@ if __name__ == "__main__":
     for line in DST.table:
         print(line)
     for i in range(4, len(a)):
-        print(DST.query(4, i+1))
+        print(DST.fold(4, i+1))
