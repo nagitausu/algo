@@ -19,12 +19,12 @@ class DisjointSparseTable:
             lv = self.level - 1 - i
             for mid in range(step, self.n + step, step*2):
                 # Forward
-                val = self.e 
+                val = self.e
                 for j in range(step):
-                    val = self.op(self.table[-1][mid + j], val)
+                    val = self.op(val, self.table[-1][mid + j])
                     self.table[lv][mid + j] = val
                 # Backward
-                val = self.e 
+                val = self.e
                 for j in range(step):
                     val = self.op(self.table[-1][mid - 1 - j], val)
                     self.table[lv][mid - 1 - j] = val
