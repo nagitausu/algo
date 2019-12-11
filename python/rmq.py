@@ -3,10 +3,14 @@ class RMQ:
         # Operator
         self.op = lambda a, b : min(a, b)
         # Identity element
-        self.e = 10**9 
+        self.e = 10**9
         self.n = len(a)
-        self.size = 2**(self.n - 1).bit_length()
-        self.data = [self.e] * (2*self.size-1)
+        self.lv = (self.n - 1).bit_length()
+        self.size = 2**self.lv
+        self.data = [self.e] * (2*self.size - 1)
+        self._acc = self.e
+        # Bisect checking function 
+        self._check = lambda x, acc : acc <= x
         self.initialize(a)
 
     # Initialize data
@@ -25,7 +29,7 @@ class RMQ:
             self.data[k] = self.op(self.data[2*k+1], self.data[2*k+2])
 
     # Min value in [l, r) (0-indexed)
-    def query(self, l, r):
+    def fold(self, l, r):
         L = l + self.size; R = r + self.size
         s = self.e
         while L < R:
@@ -38,16 +42,92 @@ class RMQ:
             L >>= 1; R >>= 1
         return s
 
+    def _bisect_forward(self, x, start, k):
+        # When seg-k in bottom, accumulate and return.
+        if k >= self.size - 1:
+            self._acc = self.op(self._acc, self.data[k])
+            if self._check(x, self._acc):
+                return k - (self.size - 1)
+            else:
+                return -1
+        width = 2**(self.lv - (k+1).bit_length() + 1)
+        mid = (k+1) * width + width // 2 - self.size 
+        # When left-child won't cover, only think about right-child. 
+        if mid <= start:
+            return self._bisect_forward(x, start, 2*k + 2)
+        # When seg-k in area and has no answer in it, accumulate and return
+        tmp_acc = self.op(self._acc, self.data[k])
+        if start <= mid - width // 2 and not self._check(x, tmp_acc):
+            self._acc = tmp_acc
+            return -1
+        # Check left-child and right-child
+        vl = self._bisect_forward(x, start, 2*k + 1)
+        if vl != -1:
+            return vl
+        return self._bisect_forward(x, start, 2*k + 2)
+    
+    # Returns min idx s.t. start <= idx and satisfy check(data[start:idx)) = True
+    def bisect_forward(self, x, start=None):
+        if start:
+            ret = self._bisect_forward(x, start, 0)
+        else:
+            ret = self._bisect_forward(x, 0, 0)
+        self._acc = self.e
+        return ret
+
+    def _bisect_backward(self, x, start, k):
+        # When seg-k in bottom, accumulate and return.
+        if k >= self.size - 1:
+            self._acc = self.op(self._acc, self.data[k])
+            if self._check(x, self._acc):
+                return k - (self.size - 1)
+            else:
+                return -1
+        width = 2**(self.lv - (k+1).bit_length() + 1)
+        mid = (k+1) * width + width // 2 - self.size 
+        # When right-child won't cover, only think about right-child. 
+        if mid >= start:
+            return self._bisect_backward(x, start, 2*k + 1)
+        # When seg-k in area and has no answer in it, accumulate and return
+        tmp_acc = self.op(self._acc, self.data[k])
+        if start > mid + width // 2 and not self._check(x, tmp_acc):
+            self._acc = tmp_acc
+            return -1
+        # Check left-child and right~child
+        vl = self._bisect_backward(x, start, 2*k + 2)
+        if vl != -1:
+            return vl
+        return self._bisect_backward(x, start, 2*k + 1)
+    
+    # Returns max idx s.t. idx < start and satisfy check(data[idx:start)) = True
+    def bisect_backward(self, x, start=None):
+        if start:
+            ret = self._bisect_backward(x, start, 0)
+        else:
+            ret = self._bisect_backward(x, self.n, 0)
+        self._acc = self.e
+        return ret
+
 if __name__ == "__main__":
-    b = [8, 3, 2, 6, 9, 11, 2, 7, 0, 2]
+    b = [12, 10, 8, 6, 4, 2, 0, 1, 3, 5, 7, 9, 11]
     n = len(b)
     rmq = RMQ(b)
-    for i in range(n):
-        print(rmq.query(i, n), end=" ")
+    print(b)
+
+    print("Fold query")
+    for i in range(1, n+1):
+        print(rmq.fold(0, i), end=" ")
     print("")
-    print("update and try agein")
+
+    print("bisect forward")
     for i in range(n):
-        rmq.update(i, i*2)
-    for i in range(n):
-        print(rmq.query(i, n), end=" ")
+        print("query:", i, "ret:", rmq.bisect_forward(i))
+
+    print("Fold query")
+    for i in range(0, n):
+        print(rmq.fold(i, n), end=" ")
     print("")
+
+    print("bisect backward")
+    for i in range(n):
+        print("query:", i, "ret:", rmq.bisect_backward(i))
