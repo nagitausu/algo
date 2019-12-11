@@ -1,16 +1,16 @@
-class RMQ:
+class SegmentTree:
     def __init__(self, a):
         # Operator
-        self.op = lambda a, b : min(a, b)
+        self.op = lambda a, b : a + b
         # Identity element
-        self.e = 10**9
+        self.e = 0 
 
         self.n = len(a)
         self.lv = (self.n - 1).bit_length()
         self.size = 2**self.lv
         self.data = [self.e] * (2*self.size - 1)
         # Bisect checking function 
-        self._check = lambda x, acc : acc <= x
+        self._check = lambda x, acc : acc >= x
         self._acc = self.e
 
         self.initialize(a)
@@ -111,25 +111,25 @@ class RMQ:
         return ret
 
 if __name__ == "__main__":
-    b = [12, 10, 8, 6, 4, 2, 0, 1, 3, 5, 7, 9, 11]
+    b = [i for i in range(16)]
     n = len(b)
-    rmq = RMQ(b)
+    ST = SegmentTree(b)
     print(b)
 
     print("Fold forward")
     for i in range(1, n+1):
-        print(rmq.fold(0, i), end=" ")
+        print(ST.fold(0, i), end=" ")
     print("")
 
     print("Bisect forward")
     for i in range(n):
-        print("query:", i, "ret:", rmq.bisect_forward(i))
+        print("query:", i, "ret:", ST.bisect_forward(i))
 
     print("Fold backward")
     for i in range(0, n):
-        print(rmq.fold(i, n), end=" ")
+        print(ST.fold(i, n), end=" ")
     print("")
 
     print("Bisect backward")
     for i in range(n):
-        print("query:", i, "ret:", rmq.bisect_backward(i))
+        print("query:", i, "ret:", ST.bisect_backward(i))
