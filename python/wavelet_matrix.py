@@ -5,6 +5,7 @@ class WaveletMatrix:
         self.bit_len = max(a).bit_length()
         self.bit_vector = [0] * self.bit_len
         self.sep = [0] * self.bit_len
+        self.begin = dict()
         self.build()
 
     def build(self):
@@ -20,6 +21,10 @@ class WaveletMatrix:
             self.sep[j] = len(front)
             front.extend(back)
             tmp = front[:]
+        for i, item in enumerate(tmp):
+            if item in self.begin:
+                continue
+            self.begin[item] = i
 
 
     def rank(self):
@@ -28,8 +33,8 @@ class WaveletMatrix:
     def select(self):
         pass
 
-    def rank_bit_vector(self):
-        pass
+    def rank_bit_vector(self, lv, x):
+        return bin(self.bit_vector[lv] >> (self.n - x)).count("1")
 
     def select_bit_vector(self):
         pass
@@ -44,3 +49,5 @@ if __name__ == "__main__":
     for item in WM.bit_vector:
         print("{:032b}".format(item))
     print(WM.sep)
+    for key in WM.begin.keys():
+        print(key, WM.begin[key])
