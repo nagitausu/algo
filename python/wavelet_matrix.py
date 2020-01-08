@@ -19,22 +19,27 @@ class WaveletMatrix:
                 else:
                     front.append(item)
             self.sep[j] = len(front)
-            front.extend(back)
-            tmp = front[:]
+            tmp = front + back
         for i, item in enumerate(tmp):
             if item in self.begin:
                 continue
             self.begin[item] = i
 
-
-    def rank(self):
-        pass
+    def rank(self, x, k=None):
+        if not k:
+            return self.rank(x, self.n)
+        for i in range(self.bit_len):
+            key_bit = x >> (self.bit_len - 1 - i) & 1
+            k = self.rank_bit_vector(i, k, key_bit)
+            if key_bit:
+                k += self.sep[i]
+        return k - self.begin[x]
 
     def select(self):
         pass
 
-    def rank_bit_vector(self, lv, x):
-        return bin(self.bit_vector[lv] >> (self.n - x)).count("1")
+    def rank_bit_vector(self, lv, k, key_bit):
+        return bin(self.bit_vector[lv] >> (self.n - k)).count(str(key_bit))
 
     def select_bit_vector(self):
         pass
@@ -49,5 +54,4 @@ if __name__ == "__main__":
     for item in WM.bit_vector:
         print("{:032b}".format(item))
     print(WM.sep)
-    for key in WM.begin.keys():
-        print(key, WM.begin[key])
+    print(WM.rank(11))
