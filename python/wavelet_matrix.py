@@ -96,8 +96,8 @@ class WaveletMatrix:
 
     # Returns index of k-th bit (0-indexed)
     def select_bit_vector(self, lv, key_bit, k):
-        # Since select() of succinct bit vector is hard to implement,
-        # here we use select()-table O(nlogm)
+        # Since succinct-bit-vector.select() is hard to implement,
+        # so I use select-table:O(nlogm) here.
         if k >= len(self.select_tbl[lv][key_bit]):
             return None
         return self.select_tbl[lv][key_bit][k]
@@ -119,3 +119,4 @@ if __name__ == "__main__":
     print("select(11, 0) ~ (11, 4):", ret)
     print("count(11, 1, 9):", WM.count(11, 1, 9))
     print("freq(0, 11, 1, 9):", WM.freq(0, 11, 1, 9))
+    print("freq(0, 11, 1, 9, get_list=True):", WM.freq(0, 11, 1, 9, True))
