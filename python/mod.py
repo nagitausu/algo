@@ -1,12 +1,13 @@
 MOD = 10**9 + 7
 MAX_N = 10**5
 
+# Construct factorial table
 fac = [1] + [0] * MAX_N
 for i in range(1, MAX_N+1):
     fac[i] = fac[i-1] * (i) % MOD
 
 fac_inv = [1] + [0] * MAX_N
-# Fmrmat's little theorem says a**(p-1) mod p == 1
+# Femrmat's little theorem says a**(p-1) mod p == 1
 # then, a * a**(p-2) mod p == 1
 # it means that a**(p-2) is the inverse element
 # Here, Get 1 / n! first
@@ -32,6 +33,13 @@ def single_mod_nCr(n, r):
         ret %= MOD
     return ret
 
+def extgcd(a, b):
+    if a == 0:
+        return b, 0, 1
+    d, y, x = extgcd(b % a, a)
+    x -= b // a * y
+    return d, x, y
+
 if __name__ == "__main__":
     for i in range(11):
         print(pow(10, i, MOD))
@@ -40,3 +48,5 @@ if __name__ == "__main__":
         print(10, i)
         print(mod_nCr(10, i))
         print(single_mod_nCr(10, i))
+    print("ext gcd")
+    print(extgcd(11, 13))
