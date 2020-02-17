@@ -1,13 +1,9 @@
-#!/usr/bin/env python3
-import sys
-input = sys.stdin.readline
-
 class DisjointSparseTable:
-    def __init__(self, a):
+    def __init__(self, a, op, e):
         # Operator
-        self.op = lambda a, b : max(a, b)
+        self.op = op
         # Identity element
-        self.e = 0
+        self.e = e 
         self.n = len(a)
         self.level = (self.n - 1).bit_length()
         self.size = 2**self.level
@@ -18,7 +14,7 @@ class DisjointSparseTable:
         self.build()
 
     def build(self):
-        for i in range(1, self.level):
+        for i in range(1, self.level): 
             step = 2**i
             lv = self.level - 1 - i
             for mid in range(step, self.n + step, step*2):
@@ -33,79 +29,72 @@ class DisjointSparseTable:
                     val = self.op(self.table[-1][mid - 1 - j], val)
                     self.table[lv][mid - 1 - j] = val
 
-    # Returns f[l:r)
-    def fold(self, l, r):
-        if l == r:
-            return self.e
-        elif l == r - 1:
-            return self.table[-1][l]
-        lv = self.level - (l ^ r-1).bit_length()
-        return self.op(self.table[lv][l], self.table[lv][r-1])
-
 class DisjointSparseTable2D:
-    def __init__(self, a):
+    def __init__(self, mat):
         # Operator
         self.op = lambda a, b : max(a, b)
         # Identity element
         self.e = 0
-        self.n = len(a)
-        self.n_inner = a[0].n
-        self.level = (self.n - 1).bit_length()
-        self.level_inner = a[0].level
-        self.size = 2**self.level
-        self.size_inner = 2**self.level_inner
-        self.table = [[[] for _ in range(self.size_inner)] for _ in range(self.level_inner)]
-        self.build(a)
+        self.n_col = len(mat)
+        self.n_row = len(mat[0])
+        self.level_col = (self.n_col - 1).bit_length()
+        self.level_row = (self.n_row - 1).bit_length()
+        self.size_col = 2**self.level_col
+        self.size_row = 2**self.level_row
+        self.table = [[[] for _ in range(self.size_row)] for _ in range(self.level_row)]
+        self.build(mat)
 
-    def build(self, a):
-        tbl = [[self.e] * self.size for _ in range(self.level)]
-        for k in range(1, self.level_inner):
-            for l in range(self.size_inner):
-                for i in range(self.n):
-                    tbl[-1][i] = a[i].table[k][l]
-                for i in range(1, self.level):
+    # Takes O(nmlognlogm)
+    def build(self, mat):
+        dsts = []
+        for line in mat:
+            item = DisjointSparseTable(line, self.op, self.e)
+            dsts.append(item)
+        for lv_row in range(self.level_row):
+            for row in range(self.size_row):
+                tbl = [[self.e] * self.size_col for _ in range(self.level_col)]
+                for i in range(self.n_col):
+                    tbl[-1][i] = dsts[i].table[lv_row][row]
+                for i in range(1, self.level_col):
                     step = 2**i
-                    lv = self.level - 1 - i
-                    for mid in range(step, self.n + step, step*2):
+                    lv_col = self.level_col - 1 - i
+                    for mid in range(step, self.n_col + step, step*2):
                         # Forward
                         val = self.e
                         for j in range(step):
                             val = self.op(val, tbl[-1][mid + j])
-                            tbl[lv][mid + j] = val
+                            tbl[lv_col][mid + j] = val
                         # Backward
                         val = self.e
                         for j in range(step):
                             val = self.op(tbl[-1][mid - 1 - j], val)
-                            tbl[lv][mid - 1 - j] = val
-                self.table[k][l].append(tbl)
+                            tbl[lv_col][mid - 1 - j] = val
+                self.table[lv_row][row] = tbl
 
-    # Returns f[l:r)
+    # Returns f([u:d), [l:r))
     def fold(self, u, d, l, r):
-        if u == d:
+        lv_col = self.level_col - (u ^ d-1).bit_length()
+        lv_row = self.level_row - (l ^ r-1).bit_length()
+        # width = 0 or height = 0
+        if u == d or l == r:
             return self.e
-        elif l == r:
-            return self.e
+        # width = 1 and height = 1
+        elif u == d - 1 and l == r - 1:
+            return self.table[-1][l][-1][u]
+        # width = 1 xor height = 1
+        elif l == r - 1:
+            return self.op(self.table[-1][l][lv_col][u], self.table[-1][l][lv_col][d - 1])
         elif u == d - 1:
-            if l == r - 1:
-                return self.table[-1][l][-1][u]
-            else:
-                return self.table[-1][l][-1][u]
-        lv_inner = self.level_inner - (l ^ r-1).bit_length()
-        lv = self.level - (u ^ d-1).bit_length()
-        val = self.e
-        self.op(val, self.table[lv_inner][l][lv][u])
-        self.op(val, self.table[lv_inner][l][lv][d-1])
-        self.op(val, self.table[lv_inner][r-1][lv][u])
-        self.op(val, self.table[lv_inner][r-1][lv][d-1])
-        return val
+            return self.op(self.table[lv_row][l][-1][u], self.table[lv_row][r-1][-1][u])
+        # width > 1 nand height > 1
+        up = self.op(self.table[lv_row][l][lv_col][u], self.table[lv_row][r-1][lv_col][u])
+        down = self.op(self.table[lv_row][l][lv_col][d-1], self.table[lv_row][r-1][lv_col][d-1])
+        return self.op(up, down)
 
-
-a = [[1, 2, 3, 4, 5], [5, 4, 3, 2, 1], [1, 5, 2, 4, 3]]
-b = []
-for line in a:
-    dst = DisjointSparseTable(line)
-    b.append(dst)
-for line in a:
-    print(line)
-dst2d = DisjointSparseTable2D(b)
-print(dst2d.fold(0,1,0,1))
+if __name__ == "__main__":
+    a = [[1, 2, 3, 4], 
+         [5, 4, 3, 2], 
+         [1, 5, 2, 4],
+         [0, 2, 9, 8]]
+    DST2D = DisjointSparseTable2D(a)
+    print(DST2D.fold(2,4,3,4))
