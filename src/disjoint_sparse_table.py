@@ -1,9 +1,9 @@
 class DisjointSparseTable:
-    def __init__(self, a):
+    def __init__(self, a, op=lambda a, b : max(a,b), e=0):
         # Operator
-        self.op = lambda a, b : max(a, b)
+        self.op = op
         # Identity element
-        self.e = 0
+        self.e = e
         self.n = len(a)
         self.level = (self.n - 1).bit_length()
         self.size = 2**self.level

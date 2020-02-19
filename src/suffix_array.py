@@ -1,9 +1,17 @@
+from disjoint_sparse_table import DisjointSparseTable
+
 class SuffixArray:
     def __init__(self, a):
         self.a = a + [0]
         self.k = max(self.a) + 1
         self.n = len(self.a)
         self.sa = self.SA_IS(self.a, self.n, self.k)
+        # Construct LCP disjoint sparse table
+        self.rank = [0] * self.n
+        for i, item in enumerate(self.sa):
+            self.rank[item] = i
+        self.lcp = self.build_LCP(self.a, self.sa, self.rank)
+        self.lcp_dst = DisjointSparseTable(self.lcp, op=lambda a,b : min(a,b), e=0)
 
     # Find the start or end of each bucket
     def get_buckets(self, a, k, end=True):
@@ -123,23 +131,82 @@ class SuffixArray:
         self.induce_SAl(a, sa, n, k, lstype)
         self.induce_SAs(a, sa, n, k, lstype)
         return sa
+    
+    def build_LCP(self, a, sa, rank):
+        # Add sentinel
+        sa.append(-1)
+        lcp = [0] * len(a)
+        same_cnt = 0
+        for index1 in range(len(a)):
+            if same_cnt != 0:
+                same_cnt -= 1
+            index2 = sa[rank[index1] + 1]
+            while a[index1 + same_cnt] == a[index2 + same_cnt]:
+                same_cnt += 1
+            lcp[rank[index1]] = same_cnt
+        # Remove sentinel
+        sa.pop()
+        return lcp
+
+    def get_lcp(self, l, r):
+        return self.lcp_dst.fold(l, r)
+
+    def search(self, b):
+        m = len(b)
+        l = 0; r = self.n + 1
+        matched = 0
+        while r - l > 1:
+            mid = (l + r) // 2
+            lm_lcp = self.get_lcp(l, mid)
+            if matched < lm_lcp:
+                l = mid
+            elif matched > lm_lcp:
+                r = mid
+            else:
+                a_itr = self.sa[mid] + matched; b_itr = matched
+                diff = 0
+                while b_itr < m and a_itr < self.n:
+                    if b[b_itr] != self.a[a_itr]:
+                        diff = b[b_itr] - self.a[a_itr]
+                        break
+                    a_itr += 1; b_itr += 1
+                if diff >= 0:
+                    l = mid
+                    matched = b_itr
+                else:
+                    r = mid
+        return matched, l
 
 if __name__ == "__main__":
-    s = "honifuwadijkstrababababa"
+    s = "honifuwadijkstrabababa"
     ord_base = ord("a") - 1
     a = [ord(ch) - ord_base for ch in s]
     SA = SuffixArray(a)
-    print(SA.sa)
+    print("suffix array          :", SA.sa)
+    print("rank                  :", SA.rank)
+    print("longest common prefix :", SA.lcp)
 
+    print("check suffix array:")
     sa_naive = [""]
     for i in range(len(s)):
         sa_naive.append(s[i:])
     sa_naive.sort()
     ok = True
     for i, index in enumerate(SA.sa):
-        print(s[index:], sa_naive[i])
+        print(i, s[index:], sa_naive[i])
         if s[index:] != sa_naive[i]:
             print("wrong!")
             ok = False
     if ok:
-        print("\nverified!")
+        print("sa verified!")
+    
+
+    print("")
+    t = "dijkstra"
+    print("search:", t)
+    b = [ord(ch) - ord_base for ch in t]
+    length, sa_index = SA.search(b)
+    if length != len(t):
+        print("not found...")
+    else:
+        print("found in sa-index:", sa_index, b, SA.a[SA.sa[sa_index]: SA.sa[sa_index] + len(b)])
