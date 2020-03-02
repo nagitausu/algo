@@ -1,9 +1,11 @@
 class DisjointSparseTable:
-    def __init__(self, a, op=lambda a, b : max(a,b), e=0):
+    def __init__(self, a, op=lambda a, b : max(a, b), e=0):
         # Operator
         self.op = op
         # Identity element
         self.e = e
+        # Add sentinel
+        a += [self.e]
         self.n = len(a)
         self.level = (self.n - 1).bit_length()
         self.size = 2**self.level
@@ -39,9 +41,18 @@ class DisjointSparseTable:
         return self.op(self.table[lv][l], self.table[lv][r-1])
 
 if __name__ == "__main__":
-    a = [1, 4, 3, 8, 5, 0, 7, 2, 9, 11, 2, 4, 5, 10, 11, 12, 11]
-    DST = DisjointSparseTable(a)
-    for line in DST.table:
-        print(line)
-    for i in range(4, len(a)):
-        print(DST.fold(4, i+1))
+    if True:
+        a = [1, 4, 3, 8, 5, 0, 7, 2, 9, 11, 2, 4, 5, 10, 11, 12, 11]
+        DST = DisjointSparseTable(a)
+        for line in DST.table:
+            print(line)
+        for i in range(0, len(a)):
+            print(DST.fold(0, i+1))
+    # Verify: https://judge.yosupo.jp/problem/staticrmq
+    if False:
+        n, q = map(int, input().split())
+        a = [int(item) for item in input().split()]
+        DST = DisjointSparseTable(a, op=lambda a, b : min(a, b), e=10**9)
+        for _ in range(q):
+            l, r = map(int, input().split())
+            print(DST.fold(l, r))

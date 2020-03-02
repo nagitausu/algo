@@ -20,10 +20,24 @@ class DisjointSet:
     def unite(self, x, y):
         x = self.root(x)
         y = self.root(y)
-
+        if x == y:
+            return
         if self.rank[x] < self.rank[y]:
             self.par[x] = y
+            self.size[y] += self.size[x] 
         else:
             self.par[y] = x
+            self.size[x] += self.size[y]
             if self.rank[x] == self.rank[y]:
                 self.rank[x] += 1
+
+if __name__ == "__main__":
+    # Vefiry: https://judge.yosupo.jp/problem/unionfind
+    n, q = map(int, input().split())
+    DS = DisjointSet(n)
+    for _ in range(q):
+        t, u, v = map(int, input().split())
+        if t == 0:
+            DS.unite(u, v)
+        else:
+            print(int(DS.has_same_root(u, v)))
