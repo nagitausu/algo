@@ -39,26 +39,29 @@ class BinaryIndexedTree:
             delta >>= 1
         return x
 
-if __name__ == "__main__":
-    if True:
-        array = [item + 1 for item in range(16)]
-        n = len(array)
-        BIT = BinaryIndexedTree(array)
-        for i in range(0, n):
-            BIT.add(i, i)
-        cumsum = []
-        for i in range(1, n+1):
-            cumsum.append(BIT.sum(i))
-        print(cumsum)
-        print(BIT.bisect_left(25))
+def toyproblem():
+    array = [item + 1 for item in range(16)]
+    n = len(array)
+    BIT = BinaryIndexedTree(array)
+    for i in range(0, n):
+        BIT.add(i, i)
+    cumsum = []
+    for i in range(1, n+1):
+        cumsum.append(BIT.sum(i))
+    print(cumsum)
+    print(BIT.bisect_left(25))
+
+def verify():
     # Verify: https://judge.yosupo.jp/problem/point_add_range_sum
-    if False:
-        n, q = map(int, input().split())
-        a = [int(item) for item in input().split()]
-        BIT = BinaryIndexedTree(a)
-        for _ in range(q):
-            t, a, b = map(int, input().split())
-            if t == 0:
-                BIT.add(a, b)
-            else:
-                print(BIT.sum(b) - BIT.sum(a))
+    n, q = map(int, input().split())
+    a = [int(item) for item in input().split()]
+    BIT = BinaryIndexedTree(a)
+    for _ in range(q):
+        t, a, b = map(int, input().split())
+        if t == 0:
+            BIT.add(a, b)
+        else:
+            print(BIT.sum(b) - BIT.sum(a))
+
+if __name__ == "__main__":
+    toyproblem()

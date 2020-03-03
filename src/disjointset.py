@@ -31,7 +31,7 @@ class DisjointSet:
             if self.rank[x] == self.rank[y]:
                 self.rank[x] += 1
 
-if __name__ == "__main__":
+def verify():
     # Vefiry: https://judge.yosupo.jp/problem/unionfind
     n, q = map(int, input().split())
     DS = DisjointSet(n)
@@ -41,3 +41,6 @@ if __name__ == "__main__":
             DS.unite(u, v)
         else:
             print(int(DS.has_same_root(u, v)))
+
+if __name__ == "__main__":
+    verify()
