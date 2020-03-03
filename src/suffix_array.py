@@ -27,58 +27,43 @@ class SuffixArray:
                 bucket[i] = sumation - bucket[i]
         return bucket
 
-    def induce_SAl(self, a, sa, n, k, lstype):
+    def induce_SAl(self, a, sa, n, k, is_stype):
         bucket = self.get_buckets(a, k, end=False)
         for i in range(n):
             j = sa[i] - 1
-            if j >= 0 and (not lstype & (1 << j + 1)):
+            if j >= 0 and not is_stype[j]:
                 sa[bucket[a[j]]] = j
                 bucket[a[j]] += 1
 
-    def induce_SAs(self, a, sa, n, k, lstype):
+    def induce_SAs(self, a, sa, n, k, is_stype):
         bucket = self.get_buckets(a, k, end=True)
         for i in range(n-1, -1, -1):
             j = sa[i] - 1
-            if j >= 0 and lstype & (1 << j + 1):
+            if j >= 0 and is_stype[j]:
                 bucket[a[j]] -= 1
                 sa[bucket[a[j]]] = j
     
-    def is_LMS(self, index, lstype):
-        return lstype >> (index+1) & 1 and not (lstype >> index & 1)
-
-    def is_stype(self, index, lstype):
-        return lstype >> (index+1) & 1
-
     def SA_IS(self, a, n, k):
-        # L-type or S-type
-        # LS-type array in bits, 1-indexed, initialized with S-type first
-        lstype = 1
-        prev_type = 0
-        prev_item = self.k
-        for i, item in enumerate(a[::-1]): 
-            shift = n - i
-            if item == prev_item:
-                lstype |= prev_type << shift 
-            elif item < prev_item:
-                lstype |= 1 << shift 
-                prev_type = 1
-            else:
-                prev_type = 0
-            prev_item = item
+        # LS-type array, initialized with S-type first
+        is_stype = [1] * n
+        for i in range(n-2, -1, -1):
+            if a[i] > a[i + 1] or (a[i] == a[i+1] and not is_stype[i+1]):
+                is_stype[i] = 0
+        is_lms = [1 if is_stype[i] and not is_stype[i-1] else 0 for i in range(n-1)] + [1]
         # Bucket array
         bucket = self.get_buckets(a, k)
         # Find ends of buckets
         sa = [-1] * n
         for i in range(n - 1, 0, -1):
-            if self.is_LMS(i, lstype):
+            if is_lms[i]:
                 bucket[a[i]] -= 1
                 sa[bucket[a[i]]] = i
-        self.induce_SAl(a, sa, n, k, lstype)
-        self.induce_SAs(a, sa, n, k, lstype)
+        self.induce_SAl(a, sa, n, k, is_stype)
+        self.induce_SAs(a, sa, n, k, is_stype)
 
         lcm_cnt = 0
         for i in range(n):
-            if self.is_LMS(sa[i], lstype):
+            if is_lms[sa[i]]:
                 sa[lcm_cnt] = sa[i]
                 lcm_cnt += 1
         for i in range(lcm_cnt, n):
@@ -90,10 +75,10 @@ class SuffixArray:
         for pos in sa[1: lcm_cnt]:
             diff = False
             for d in range(n):
-                if a[pos + d] != a[prev + d] or (self.is_stype(pos + d, lstype) != self.is_stype(prev + d, lstype)):
+                if a[pos + d] != a[prev + d] or is_stype[pos + d] != is_stype[prev + d]:
                     diff = True
                     break
-                elif d > 0 and (self.is_LMS(pos + d, lstype) or self.is_LMS(prev + d, lstype)):
+                elif d > 0 and (is_lms[pos + d] or is_lms[prev + d]):
                     break
             if diff:
                 name += 1; prev = pos
@@ -114,7 +99,7 @@ class SuffixArray:
         bucket = self.get_buckets(a, k, end=True)
         j = 0
         for i in range(1, n):
-            if self.is_LMS(i, lstype):
+            if is_lms[i]:
                 sub_a[j] = i
                 j += 1
         # Earn correctly sorted LCMs
@@ -128,10 +113,10 @@ class SuffixArray:
             sa[bucket[a[j]]] = j
 
         # Correct induced sorting
-        self.induce_SAl(a, sa, n, k, lstype)
-        self.induce_SAs(a, sa, n, k, lstype)
+        self.induce_SAl(a, sa, n, k, is_stype)
+        self.induce_SAs(a, sa, n, k, is_stype)
         return sa
-    
+
     def build_LCP(self, a, sa, rank):
         # Add sentinel
         sa.append(-1)
@@ -177,7 +162,7 @@ class SuffixArray:
                     r = mid
         return matched, l
 
-if __name__ == "__main__":
+def toyproblem():
     s = "honifuwadijkstrabababa"
     ord_base = ord("a") - 1
     a = [ord(ch) - ord_base for ch in s]
@@ -200,7 +185,6 @@ if __name__ == "__main__":
     if ok:
         print("sa verified!")
     
-
     print("")
     t = "dijkstra"
     print("search:", t)
@@ -210,3 +194,14 @@ if __name__ == "__main__":
         print("not found...")
     else:
         print("found in sa-index:", sa_index, b, SA.a[SA.sa[sa_index]: SA.sa[sa_index] + len(b)])
+
+def verify():
+    # Verify: https://judge.yosupo.jp/problem/suffixarray
+    s = input().rstrip()
+    ord_base = ord("a") - 1
+    a = [ord(ch) - ord_base for ch in s]
+    SA = SuffixArray(a)
+    print(*SA.sa[1:])
+
+if __name__ == "__main__":
+    toyproblem()

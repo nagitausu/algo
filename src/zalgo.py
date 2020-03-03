@@ -26,7 +26,7 @@ def calc_zarray(s):
         s_idx += k; matching -= k
     return zarray
 
-if __name__ == "__main__":
+def toyproblem():
     s = "aaabbabababaaabaaaab"
     t = "ababa"
     print(s)
@@ -34,3 +34,12 @@ if __name__ == "__main__":
     print(zarray)
     print("search: " + t)
     print(search(s, t))
+
+def verify():
+    # Verify: https://judge.yosupo.jp/problem/zalgorithm
+    s = input().rstrip()
+    zarray = calc_zarray(s)
+    print(*zarray)
+
+if __name__ == "__main__":
+    verify()
