@@ -8,6 +8,7 @@ class DirectedGraph:
         self.adj = adj
         self.is_asyclic = False
         self.max_path_len = None
+        self.reverse_adj()
 
     def reverse_adj(self):
         self.rev_adj = [[] for _ in range(self.n)]
@@ -132,29 +133,41 @@ class DirectedGraph:
 
 
 if __name__ == "__main__":
-    n = 8
-    edge = [[] for _ in range(n)]
-    edge[0].append(1)
-    edge[1].append(2)
-    edge[2].append(3)
-    # edge[3].append(0)
-    edge[5].append(6)
-    edge[5].append(1)
-    edge[6].append(2)
-    edge[2].append(7)
-    edge[7].append(4)
-    # edge[8].append(9)
+    if False:
+        n = 8
+        edge = [[] for _ in range(n)]
+        edge[0].append(1)
+        edge[1].append(2)
+        edge[2].append(3)
+        # edge[3].append(0)
+        edge[5].append(6)
+        edge[5].append(1)
+        edge[6].append(2)
+        edge[2].append(7)
+        edge[7].append(4)
+        # edge[8].append(9)
 
-    DG = DirectedGraph(edge)
-    tp_sorted = DG.topological_sort()
-    print("topological sort")
-    print(tp_sorted)
-    print(DG.max_path_len)
+        DG = DirectedGraph(edge)
+        tp_sorted = DG.topological_sort()
+        print("topological sort")
+        print(tp_sorted)
+        print(DG.max_path_len)
 
-    cycle = DG.extract_cycle()
-    print("extrace cycle")
-    print(cycle)
-    scc = DG.strongly_connected_components_decomp()
-    print("strongly connected components")
-    print(scc)
-    print(DG.comp)
+        cycle = DG.extract_cycle()
+        print("extrace cycle")
+        print(cycle)
+        scc = DG.strongly_connected_components_decomp()
+        print("strongly connected components")
+        print(scc)
+        print(DG.comp)
+    if True:
+        n, m = map(int, input().split())
+        edge = [[] for _ in range(n)]
+        for _ in range(m):
+            a, b = map(int, input().split())
+            edge[a].append(b)
+        print(edge)
+        DG = DirectedGraph(edge)
+        scc = DG.strongly_connected_components_decomp()
+        print(scc)
+        print(DG.comp)
