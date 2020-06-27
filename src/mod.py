@@ -21,6 +21,11 @@ def mod_nCr(n, r):
     tmp = fac_inv[n-r] * fac_inv[r] % MOD
     return tmp * fac[n] % MOD
 
+def mod_nPr(n, r):
+    if n < r or n < 0 or r < 0:
+        return 0
+    return fac_inv[n-r] * fac[n] % MOD
+
 def single_mod_nCr(n, r):
     if n < r or n < 0 or r < 0:
         return 0
